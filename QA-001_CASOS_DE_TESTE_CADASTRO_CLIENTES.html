@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>QA-001 — Documentação de Testes: Cadastro de Clientes</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    color: #212121;
+    margin: 40px 60px;
+    line-height: 1.6;
+  }
+  h1 {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #1a237e;
+    border-bottom: 3px solid #1a237e;
+    padding-bottom: 8px;
+    margin-top: 0;
+  }
+  h2 {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #1a237e;
+    border-bottom: 1px solid #9fa8da;
+    padding-bottom: 4px;
+    margin-top: 32px;
+  }
+  h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #283593;
+    margin-top: 20px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #c5cae9;
+    margin: 24px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px 0;
+    font-size: 10pt;
+  }
+  th {
+    background-color: #1a237e;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 8px 10px;
+    text-align: left;
+    border: 1px solid #9fa8da;
+  }
+  tr:nth-child(even) td {
+    background-color: #e8eaf6;
+  }
+  tr:nth-child(odd) td {
+    background-color: #ffffff;
+  }
+  td {
+    padding: 7px 10px;
+    border: 1px solid #c5cae9;
+    vertical-align: top;
+  }
+  td.id-col {
+    font-weight: bold;
+    white-space: nowrap;
+    color: #1a237e;
+    width: 120px;
+  }
+  code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 9.5pt;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 1px 4px;
+  }
+  ul {
+    margin: 6px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  .badge-alta    { background:#d32f2f; color:#fff; padding:2px 8px; border-radius:4px; font-size:9pt; font-weight:bold; }
+  .badge-media   { background:#f57c00; color:#fff; padding:2px 8px; border-radius:4px; font-size:9pt; font-weight:bold; }
+  .badge-baixa   { background:#388e3c; color:#fff; padding:2px 8px; border-radius:4px; font-size:9pt; font-weight:bold; }
+  .badge-critico { background:#880e4f; color:#fff; padding:2px 8px; border-radius:4px; font-size:9pt; font-weight:bold; }
+  .section-label {
+    display: inline-block;
+    background-color: #283593;
+    color: #fff;
+    font-size: 9pt;
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .summary-box {
+    background-color: #e8eaf6;
+    border-left: 5px solid #1a237e;
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+  .summary-box ul { margin: 6px 0; }
+  .bug-table td:first-child { font-weight: bold; color: #b71c1c; }
+  .col-aprovado { width: 80px; text-align: center; }
+  .col-evidencias { width: 140px; }
+  .col-no { width: 120px; font-weight: bold; color: #1a237e; }
+  .page-break { page-break-before: always; }
+  caption {
+    caption-side: top;
+    font-weight: bold;
+    font-size: 10pt;
+    color: #283593;
+    text-align: left;
+    padding: 4px 0 6px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<h1>QA-001 — Documentação de Testes: Cadastro de Clientes</h1>
+
+<!-- ════ CABEÇALHO ════ -->
+<h2>Cabeçalho</h2>
+<table>
+  <tr><th style="width:200px">Campo</th><th>Informação</th></tr>
+  <tr><td><strong>Identificador</strong></td><td>QA-001</td></tr>
+  <tr><td><strong>Tipo de Teste</strong></td><td>Funcional · Limite · Validação · Regressão · Exploratório · Integridade de Dados · Concorrência · Usabilidade</td></tr>
+  <tr><td><strong>Objetivo do Teste</strong></td><td>Garantir que o módulo de Cadastro de Clientes funcione corretamente em todos os cenários — positivos, negativos, limites, regressão, usabilidade, integridade dos dados e concorrência — assegurando a consistência entre os dados exibidos na grid e os armazenados na base.</td></tr>
+  <tr><td><strong>Requisitos Motivadores</strong></td><td>REQ-1 (Inserção), REQ-2 (Atualização), REQ-3 (Exclusão), REQ-4 (Sincronização da Grid), REQ-5 (Tratamento de Erros), REQ-6 (Validação de Entrada), REQ-7 (Usabilidade), REQ-8 (Integridade dos Dados)</td></tr>
+  <tr><td><strong>Módulos Impactados</strong></td><td><code>TfrmCliente</code> (Cliente.pas / Cliente.dfm), <code>Tdm</code> (dmDados.pas), Tabela <code>TBCLIENTES</code>, Stored Procedures <code>st_InsereCli</code>, <code>st_AlteraCli</code>, <code>ST_APAGACLI</code>, <code>qryClienets</code> / <code>dsClientes</code></td></tr>
+  <tr><td><strong>Versão</strong></td><td>1.0</td></tr>
+  <tr><td><strong>Data</strong></td><td>Junho/2026</td></tr>
+  <tr><td><strong>Responsável</strong></td><td>QA</td></tr>
+</table>
+
+<hr>
+
+<!-- ════ DADOS BÁSICOS ════ -->
+<h2>Dados Básicos para Simulação</h2>
+
+<h3>Pré-condições</h3>
+<ul>
+  <li>Aplicação VendaProduto compilada e iniciada (<code>VendaProduto.exe</code>)</li>
+  <li>Banco de dados <code>ProjetoVenda</code> no SQL Server acessível e responsivo</li>
+  <li>As stored procedures <code>st_InsereCli</code>, <code>st_AlteraCli</code> e <code>ST_APAGACLI</code> existem no banco</li>
+  <li>A tabela <code>TBCLIENTES</code> existe e possui as colunas <code>ID_CLI</code> (INT IDENTITY) e <code>NOME_CLI</code> (VARCHAR 50)</li>
+  <li>O formulário <code>frmCliente</code> está acessível via atalho visual na tela principal ou menu de navegação</li>
+  <li>O operador tem permissões de leitura e escrita no banco</li>
+</ul>
+
+<h3>Massa de Dados Necessária</h3>
+<table>
+  <tr><th>Dado</th><th>Descrição</th><th>Uso</th></tr>
+  <tr><td><strong>Cliente A</strong></td><td>Nome: "João Silva"</td><td>Inserção (fluxo feliz)</td></tr>
+  <tr><td><strong>Cliente B</strong></td><td>Nome: "Maria Santos"</td><td>Inserção e posterior atualização</td></tr>
+  <tr><td><strong>Cliente C</strong></td><td>Nome: "Pedro Almeida"</td><td>Inserção e posterior exclusão</td></tr>
+  <tr><td><strong>Cliente vinculado a venda</strong></td><td>Cliente com ao menos 1 venda gravada em <code>TBVENDAS</code></td><td>Teste de integridade referencial na exclusão</td></tr>
+  <tr><td><strong>Nome com 50 chars</strong></td><td>"AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLLM" (exato)</td><td>Teste de valor limite superior</td></tr>
+  <tr><td><strong>Nome com 51 chars</strong></td><td>51 caracteres quaisquer</td><td>Teste de bloqueio de MaxLength</td></tr>
+  <tr><td><strong>Nome só espaços</strong></td><td>"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" (5 ou mais espaços)</td><td>Teste de validação whitespace</td></tr>
+  <tr><td><strong>Nome vazio</strong></td><td>"" (string vazia)</td><td>Teste de campo obrigatório</td></tr>
+  <tr><td><strong>Nome com caracteres especiais</strong></td><td>"José D'Ávila &amp; Cia"</td><td>Teste exploratório</td></tr>
+  <tr><td><strong>Nome com caracteres Unicode</strong></td><td>"Müller Ações"</td><td>Teste exploratório</td></tr>
+</table>
+
+<h3>Cadastros Necessários</h3>
+<ul>
+  <li>Ao menos 3 clientes previamente cadastrados no banco para os testes de seleção, atualização e exclusão</li>
+  <li>Ao menos 1 cliente vinculado a uma venda para o teste de integridade referencial (CT-CLI-I-06)</li>
+</ul>
+
+<h3>Configurações Necessárias</h3>
+<ul>
+  <li>SQL Server deve estar em execução com a instância configurada em <code>conProjetoVenda</code></li>
+  <li>String de conexão em <code>dmDados.dfm</code> aponta para <code>localhost\SQLSERVER2022</code>, banco <code>ProjetoVenda</code></li>
+  <li>Para testes de banco indisponível: parar o serviço do SQL Server ou alterar a string de conexão</li>
+</ul>
+
+<hr>
+
+<!-- ════ PASSO A PASSO ════ -->
+<h2>Passo a Passo para Simulação Básica da Rotina</h2>
+<ol>
+  <li>Iniciar a aplicação <code>VendaProduto.exe</code></li>
+  <li>Na tela principal, clicar no atalho visual de <strong>Clientes</strong> (ou acessar pelo menu <code>Cadastro &gt; Clientes</code>)</li>
+  <li>A tela <code>frmCliente</code> abre e a grid exibe os clientes cadastrados</li>
+  <li><strong>Inserção:</strong> digitar o nome no campo <code>edtNome</code> → clicar <strong>Salvar</strong> → confirmar com <strong>Sim</strong> → verificar que o registro aparece na grid e o campo é limpo</li>
+  <li><strong>Atualização:</strong> clicar em um cliente na grid (o nome carrega em <code>edtNome</code>) → editar o nome → clicar <strong>Atualizar</strong> → confirmar com <strong>Sim</strong> → verificar que a grid reflete o novo nome</li>
+  <li><strong>Exclusão:</strong> clicar em um cliente na grid → clicar <strong>Excluir</strong> → confirmar com <strong>Sim</strong> → verificar que o registro desaparece da grid</li>
+</ol>
+
+<hr>
+
+<!-- ════ TESTES FUNCIONAIS ════ -->
+<h2>Testes Funcionais</h2>
+
+<h3>Bloco 1 — Inserção de Cliente (Fluxo Feliz)</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-F-01</td><td>Inserir cliente com nome válido "João Silva" e confirmar</td><td>Cliente aparece na grid com Código gerado automaticamente e Nome "João Silva". Campo <code>edtNome</code> fica vazio. Foco retorna para <code>edtNome</code>.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-02</td><td>Verificar que o diálogo de confirmação exibe o texto correto ao clicar em Salvar</td><td>Diálogo exibe exatamente "Deseja Salvar?" com ícone de aviso <em>(correção BUG-001)</em></td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-03</td><td>Após inserção bem-sucedida, verificar que o campo <code>edtNome</code> está vazio</td><td><code>edtNome.Text = ""</code> imediatamente após o retorno da operação</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-04</td><td>Após inserção bem-sucedida, verificar que o foco está em <code>edtNome</code></td><td>Cursor posicionado em <code>edtNome</code> sem ação adicional do operador</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-05</td><td>Inserir dois clientes consecutivos sem fechar a tela</td><td>Ambos aparecem na grid com códigos únicos e sequenciais. Campo limpo entre as inserções.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-06</td><td>Verificar que o código do cliente é gerado automaticamente pelo banco</td><td>O campo Código na grid é preenchido automaticamente — o operador não informa código em nenhum momento</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-07</td><td>Após inserção, a grid recarrega em até 3 segundos</td><td>O novo registro está visível na grid em até 3 segundos após a confirmação</td><td></td><td></td></tr>
+</table>
+
+<h3>Bloco 2 — Inserção de Cliente (Fluxo Alternativo — Cancelamento)</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-A-01</td><td>Digitar nome válido, clicar Salvar e escolher <strong>Não</strong> no diálogo</td><td>Nenhum registro inserido. Mensagem "Ação Cancelada" exibida. Campo <code>edtNome</code> permanece preenchido.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-A-02</td><td>Verificar que a grid não é alterada após cancelar a inserção</td><td>Grid mantém exatamente os mesmos registros anteriores ao cancelamento</td><td></td><td></td></tr>
+</table>
+
+<h3>Bloco 3 — Atualização de Cliente (Fluxo Feliz)</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-F-08</td><td>Clicar em uma linha na grid e verificar que o nome é carregado em <code>edtNome</code></td><td><code>edtNome.Text</code> recebe o <code>NOME_CLI</code> da linha clicada automaticamente <em>(correção BUG-004)</em></td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-09</td><td>Selecionar cliente, editar nome para "Novo Nome Teste" e confirmar atualização</td><td>Grid exibe o novo nome na linha do cliente atualizado. Dados no banco refletem a mudança.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-10</td><td>Verificar que o diálogo de confirmação de atualização exibe o texto correto</td><td>Diálogo exibe exatamente "Deseja Atualizar?" com ícone de aviso</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-11</td><td>Após atualização, a grid recarrega em até 2 segundos</td><td>Nome atualizado visível na grid em até 2 segundos</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-12</td><td>Verificar que apenas o registro atualizado foi modificado no banco</td><td>Os demais clientes permanecem inalterados na grid e no banco</td><td></td><td></td></tr>
+</table>
+
+<h3>Bloco 4 — Atualização de Cliente (Fluxo Alternativo — Cancelamento)</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-A-03</td><td>Selecionar cliente, editar nome e clicar <strong>Não</strong> no diálogo de atualização</td><td>Nenhuma alteração persistida. Mensagem de cancelamento exibida. Grid permanece com o nome original.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-A-04</td><td>Verificar que <code>edtNome</code> mantém o texto editado após cancelar a atualização</td><td>Estado da tela (campo e seleção) permanece inalterado após cancelamento</td><td></td><td></td></tr>
+</table>
+
+<h3>Bloco 5 — Exclusão de Cliente (Fluxo Feliz)</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-F-13</td><td>Selecionar cliente e confirmar exclusão com <strong>Sim</strong></td><td>Cliente removido do banco. Grid recarregada sem o registro. Nenhuma linha permanece selecionada após exclusão.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-14</td><td>Verificar que o diálogo de confirmação de exclusão exibe o texto correto</td><td>Diálogo exibe exatamente "Deseja Excluir?" com ícone de aviso</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-15</td><td>Verificar que apenas o cliente selecionado foi excluído</td><td>Os demais clientes permanecem na grid e no banco</td><td></td><td></td></tr>
+</table>
+
+<h3>Bloco 6 — Exclusão de Cliente (Fluxo Alternativo — Cancelamento)</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-A-05</td><td>Selecionar cliente, clicar Excluir e escolher <strong>Não</strong></td><td>Nenhum registro removido. Mensagem "Ação Cancelada" exibida. Grid inalterada.</td><td></td><td></td></tr>
+</table>
+
+<h3>Bloco 7 — Sincronização da Grid</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-F-16</td><td>Abrir a tela de clientes com banco vazio</td><td>Grid exibe sem registros e sem nenhuma mensagem de erro</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-17</td><td>Abrir a tela de clientes com registros cadastrados</td><td>Grid exibe todos os clientes na ordem crescente de Código</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-F-18</td><td>Verificar que a grid permanece estável enquanto nenhuma operação é realizada</td><td>Grid não recarrega espontaneamente sem ação do operador</td><td></td><td></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ TESTES NEGATIVOS ════ -->
+<h2>Testes Negativos e de Validação</h2>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-N-01</td><td>Clicar em <strong>Salvar</strong> com campo <code>edtNome</code> completamente vazio</td><td>Mensagem modal de validação informando que o nome é obrigatório. SP não é chamada. Foco retorna para <code>edtNome</code>. <em>(correção BUG-002)</em></td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-02</td><td>Clicar em <strong>Salvar</strong> com <code>edtNome</code> contendo apenas espaços ("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")</td><td>Mensagem modal de validação. SP não é chamada. Campo não é limpo.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-03</td><td>Clicar em <strong>Salvar</strong> com <code>edtNome</code> contendo apenas uma tabulação ou caractere invisível</td><td>Mensagem modal de validação. SP não é chamada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-04</td><td>Clicar em <strong>Atualizar</strong> sem nenhuma linha selecionada na grid</td><td>Mensagem modal orientando o operador a selecionar um cliente. SP não é chamada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-05</td><td>Clicar em <strong>Atualizar</strong> com <code>edtNome</code> vazio após selecionar cliente</td><td>Mensagem modal de validação do campo obrigatório. SP não é chamada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-06</td><td>Clicar em <strong>Atualizar</strong> com <code>edtNome</code> contendo apenas espaços</td><td>Mensagem modal de validação. SP não é chamada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-07</td><td>Clicar em <strong>Excluir</strong> sem nenhuma linha selecionada na grid</td><td>Mensagem modal orientando o operador a selecionar um cliente. SP não é chamada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-08</td><td>Clicar em <strong>Excluir</strong> com a grid vazia (banco sem registros)</td><td>Mensagem modal orientando seleção. Nenhum erro de exceção.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-N-09</td><td>Verificar que o diálogo de confirmação de inserção não aparece quando o nome é inválido</td><td>Nenhum diálogo de confirmação é exibido antes da mensagem de validação</td><td></td><td></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ TESTES DE VALOR LIMITE ════ -->
+<h2>Testes de Valor Limite (Particionamento de Equivalência e Análise de Valor Limite)</h2>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Massa de Dados</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-L-01</td><td>Inserir cliente com nome de <strong>1 caractere</strong> (mínimo válido)</td><td>Nome: "A"</td><td>Aceito e persistido corretamente. Registro na grid com código e nome "A".</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-02</td><td>Inserir cliente com nome de <strong>2 caracteres</strong></td><td>Nome: "AB"</td><td>Aceito e persistido.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-03</td><td>Inserir cliente com nome de <strong>49 caracteres</strong> (fronteira inferior)</td><td>Nome com 49 chars</td><td>Aceito e persistido sem truncamento.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-04</td><td>Inserir cliente com nome de <strong>50 caracteres</strong> (limite superior exato)</td><td>Nome com exatos 50 chars</td><td>Aceito e persistido sem truncamento nem erro. Todos os 50 caracteres gravados.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-05</td><td>Tentar digitar o <strong>51º caractere</strong> no campo <code>edtNome</code></td><td>Digitar 51 chars sequencialmente</td><td>Campo bloqueia silenciosamente no 50º caractere. Nenhuma mensagem de erro. Campo exibe apenas 50 chars.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-06</td><td>Verificar propriedade <code>MaxLength</code> do campo <code>edtNome</code></td><td>Inspeção visual e funcional</td><td><code>edtNome.MaxLength = 50</code> — campo aceita no máximo 50 caracteres</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-07</td><td>Inserir nome com <strong>1 espaço</strong> no início seguido de caractere válido (ex: " João")</td><td>Nome: " João"</td><td>Aceito — <code>Trim</code> verifica apenas se a string trimada não é vazia; espaços internos são preservados.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-08</td><td>Inserir nome com <strong>apenas 1 espaço</strong></td><td>Nome: " "</td><td>Rejeitado — mensagem de validação exibida.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-L-09</td><td>Atualizar nome para <strong>50 caracteres</strong> exatos</td><td>Nome com 50 chars</td><td>Aceito e persistido sem truncamento.</td><td></td><td></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ TESTES EXPLORATÓRIOS ════ -->
+<h2>Testes Exploratórios</h2>
+<table>
+  <tr><th class="col-no">Nº</th><th>Explorar</th><th>Procedimento</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-E-01</td><td>Comportamento com nome contendo caracteres especiais</td><td>Inserir "José D'Ávila &amp; Cia."</td><td>Sistema aceita e persiste corretamente. Grid exibe nome completo.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-02</td><td>Comportamento com nome contendo acentuação e Unicode</td><td>Inserir "Müller Ações Ltda"</td><td>Sistema aceita sem corrupção de encoding. Banco armazena corretamente.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-03</td><td>Comportamento com nome somente em números</td><td>Inserir "123456789"</td><td>Aceito — não há restrição de tipo no campo nome.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-04</td><td>Clicar múltiplas vezes rapidamente em <strong>Salvar</strong> com nome válido</td><td>3 cliques rápidos com confirmação</td><td>Apenas 1 cliente inserido por sequência de confirmação. Sem duplicatas inesperadas.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-05</td><td>Clicar em <strong>Salvar</strong> antes de o banco terminar de carregar a grid</td><td>Logo após abrir a tela, clicar rapidamente em Salvar</td><td>Nenhum crash. A operação aguarda ou exibe erro tratado.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-06</td><td>Selecionar cliente, editar nome e depois selecionar outro cliente na grid</td><td>Selecionar cliente A → editar nome → clicar no cliente B</td><td><code>edtNome</code> carrega o nome do cliente B (nova seleção sobrescreve).</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-07</td><td>Inserir cliente com nome que já existe no banco</td><td>Inserir "João Silva" quando já existe outro "João Silva"</td><td>Sistema aceita (não há constraint UNIQUE no nome). Dois registros com o mesmo nome.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-08</td><td>Fechar e reabrir a tela de clientes após inserção</td><td>Inserir cliente, fechar tela, reabrir</td><td>Grid exibe todos os clientes incluindo o recém-inserido. Dados persistidos corretamente.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-09</td><td>Verificar ordenação da grid após múltiplas inserções</td><td>Inserir 5 clientes em ordem aleatória de nomes</td><td>Grid exibe na ordem crescente de Código_Cliente (ID_CLI ASC).</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-10</td><td>Pressionar Enter no campo <code>edtNome</code></td><td>Digitar nome e pressionar Enter</td><td>Comportamento documentado: sem ação (Enter não aciona Salvar) ou navegação padrão VCL. Sem crash.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-E-11</td><td>Verificar comportamento com colar (Ctrl+V) texto de 100 caracteres</td><td>Colar string de 100 chars em <code>edtNome</code></td><td>Campo aceita apenas os primeiros 50 caracteres (MaxLength = 50).</td><td></td><td></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ TESTES DE REGRESSÃO ════ -->
+<h2>Testes de Regressão</h2>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Relacionado a</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-R-01</td><td>Verificar que o texto do diálogo de inserção é "Deseja Salvar?" (sem typo)</td><td>BUG-001</td><td>Diálogo exibe "Deseja Salvar?" e não "Deseja Salavar"</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-02</td><td>Verificar que inserção com campo vazio é rejeitada antes de exibir qualquer diálogo</td><td>BUG-002</td><td>Mensagem de validação aparece diretamente, sem diálogo de confirmação</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-03</td><td>Verificar que erro de banco na inserção não trava a aplicação</td><td>BUG-003 (try/except)</td><td>Mensagem de erro exibida; aplicação continua funcionando; foco retorna ao formulário</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-04</td><td>Verificar que erro de banco na atualização não trava a aplicação</td><td>BUG-003 (try/except)</td><td>Mensagem de erro exibida; aplicação continua; grid preservada</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-05</td><td>Verificar que erro de banco na exclusão não trava a aplicação</td><td>BUG-003 (try/except)</td><td>Mensagem de erro exibida; aplicação continua; grid preservada</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-06</td><td>Verificar que ao selecionar linha na grid o nome é carregado em <code>edtNome</code></td><td>BUG-004</td><td><code>edtNome.Text</code> = <code>NOME_CLI</code> da linha selecionada</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-07</td><td>Após corrigir BUG-004: confirmar que atualização usa o nome editado em <code>edtNome</code></td><td>BUG-004</td><td>Banco reflete o nome digitado em <code>edtNome</code>, não o valor anterior da grid</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-08</td><td>Verificar que tela de Vendas ainda exibe clientes na grid</td><td>Regressão geral</td><td>Grid de clientes em <code>frmVendas</code> carrega normalmente</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-09</td><td>CRUD completo de clientes em sequência: inserir → atualizar → excluir</td><td>CR006-03</td><td>Todas as três operações executadas com sucesso sem travamentos ou dados corrompidos</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-R-10</td><td>Verificar que os diálogos de cancelamento ainda exibem "Ação Cancelada" em todos os handlers</td><td>Regressão geral</td><td>Mensagem "Ação Cancelada" aparece ao negar qualquer confirmação</td><td></td><td></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ TESTES NÃO FUNCIONAIS ════ -->
+<h2>Testes Não Funcionais</h2>
+
+<h3>Performance</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Critério de Aceite</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-P-01</td><td>Tempo de resposta da inserção com banco local</td><td>Grid recarregada e campo limpo em ≤ 3 segundos após a confirmação</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-P-02</td><td>Tempo de resposta da atualização com banco local</td><td>Grid reflete o novo nome em ≤ 2 segundos após a confirmação</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-P-03</td><td>Tempo de abertura da tela com 1.000 registros na tabela</td><td>Grid carregada e visível em ≤ 5 segundos</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-P-04</td><td>Inserção de 50 clientes consecutivos sem fechar a tela</td><td>Nenhuma degradação de performance. Tempo de cada inserção estável. Sem vazamento de memória aparente.</td><td></td><td></td></tr>
+</table>
+
+<h3>Segurança e Integridade</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Critério de Aceite</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-S-01</td><td>SQL Injection no campo nome</td><td>Inserir <code>'; DROP TABLE TBCLIENTES; --</code> → stored procedure recebe valor como parâmetro seguro. Nenhuma ação destrutiva no banco.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-S-02</td><td>Verificar que nenhuma operação usa SQL inline nos formulários</td><td>Toda operação de banco ocorre via <code>TFDStoredProc</code> declarado no DataModule</td><td></td><td></td></tr>
+</table>
+
+<h3>Concorrência</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Procedimento</th><th>Resultado Esperado</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-C-01</td><td>Dois operadores inserem cliente com mesmo nome simultaneamente</td><td>Abertura dupla da aplicação + inserção simultânea do mesmo nome</td><td>Ambos os registros inseridos com códigos distintos. Sem deadlock ou violação de PK.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-C-02</td><td>Operador A exclui cliente enquanto Operador B tenta atualizar o mesmo</td><td>Instância 1 exclui; imediatamente, Instância 2 tenta atualizar o mesmo ID</td><td>Instância 2 recebe erro de banco tratado (try/except). Mensagem exibida. Grid recarregada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-C-03</td><td>Abrir tela de clientes em duas instâncias e realizar inserções alternadas</td><td>Inserir na instância 1, depois na instância 2</td><td>Cada instância vê seus próprios dados até recarregar. Nenhuma instância trava.</td><td></td><td></td></tr>
+</table>
+
+<h3>Integridade de Dados</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Critério de Aceite</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-I-01</td><td>O nome persistido no banco é idêntico ao digitado na tela</td><td>Inserir "Carlos Magno" → <code>SELECT NOME_CLI FROM TBCLIENTES WHERE NOME_CLI = 'Carlos Magno'</code> → retorna exatamente o texto digitado</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-I-02</td><td>O Código do cliente é único e não se repete</td><td>Inserir 10 clientes → <code>SELECT ID_CLI, COUNT(*) ... HAVING COUNT(*) &gt; 1</code> → nenhum resultado</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-I-03</td><td>O Código não é reutilizado após exclusão</td><td>Excluir cliente com ID X → inserir novo → novo cliente recebe ID &gt; X</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-I-04</td><td>A atualização afeta apenas o registro selecionado</td><td>Somente o registro com o ID_CLI correto foi alterado. Demais clientes inalterados.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-I-05</td><td>A exclusão remove apenas o registro selecionado</td><td><code>SELECT COUNT(*) FROM TBCLIENTES WHERE ID_CLI = X</code> → resultado = 0 para o ID excluído</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-I-06</td><td>Exclusão de cliente vinculado a venda resulta em erro tratado</td><td>Mensagem de erro indicando violação de integridade referencial. Registro não removido. Grid inalterada.</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-I-07</td><td>Os dados exibidos na grid são lidos do banco após cada operação</td><td>Grid reflete exatamente <code>SELECT * FROM TBCLIENTES ORDER BY ID_CLI ASC</code> no momento da recarga</td><td></td><td></td></tr>
+</table>
+
+<h3>Usabilidade</h3>
+<table>
+  <tr><th class="col-no">Nº</th><th>Validar</th><th>Critério de Aceite</th><th class="col-aprovado">Aprovado?</th><th class="col-evidencias">Evidências</th></tr>
+  <tr><td class="id-col">CT-CLI-U-01</td><td>Colunas da grid exibidas na ordem correta</td><td>Coluna 0 = Código_Cliente (centro), Coluna 1 = Nome_Cliente (esquerda)</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-U-02</td><td>Foco em <code>edtNome</code> após mensagem de validação</td><td>Cursor retorna automaticamente para <code>edtNome</code> após fechar a mensagem</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-U-03</td><td>Tela centralizada na área de trabalho</td><td>Formulário aparece centralizado na tela (Position = poDesktopCenter)</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-U-04</td><td>Mensagens em português sem erros de digitação</td><td>Todas as mensagens exibidas em português, sem typos</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-U-05</td><td>Diálogos exibem ícone de aviso visível</td><td>Ícone de exclamação presente em todos os diálogos de confirmação (Salvar, Atualizar, Excluir)</td><td></td><td></td></tr>
+  <tr><td class="id-col">CT-CLI-U-06</td><td><code>edtNome</code> limpo e com foco após inserção bem-sucedida</td><td>Campo vazio e cursor posicionado sem ação adicional do operador</td><td></td><td></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ INFORMAÇÕES COMPLEMENTARES ════ -->
+<h2>Informações Complementares</h2>
+
+<h3>Riscos Identificados</h3>
+<table>
+  <tr><th>Risco</th><th>Probabilidade</th><th>Impacto</th><th>Mitigação</th></tr>
+  <tr><td>Campo <code>edtNome</code> sem MaxLength definido (BUG em aberto)</td><td><span class="badge-media">Média</span></td><td><span class="badge-alta">Alto</span> — SP recebe string &gt; 50 chars, erro de banco não tratado</td><td>Configurar <code>MaxLength = 50</code> no DFM (tarefa 2.1)</td></tr>
+  <tr><td>BUG-003: ausência de try/except — exceção de banco trava a aplicação</td><td><span class="badge-alta">Alta</span></td><td><span class="badge-critico">Crítico</span></td><td>Implementar try/except em todos os handlers (tarefas 6.3, 7.3, 8.2)</td></tr>
+  <tr><td>BUG-004: atualização sobrescreve nome com o valor da grid</td><td><span class="badge-alta">Alta</span></td><td><span class="badge-alta">Alto</span> — operador não consegue editar nomes</td><td>Implementar <code>dbClienteCellClick</code> e corrigir <code>@nome</code> para <code>edtNome.Text</code></td></tr>
+  <tr><td>Exclusão de cliente vinculado a venda</td><td><span class="badge-media">Média</span></td><td><span class="badge-alta">Alto</span> — violação de integridade sem tratamento</td><td>try/except captura EDatabaseError com mensagem para o operador</td></tr>
+  <tr><td>Dois operadores excluem/atualizam o mesmo registro</td><td><span class="badge-baixa">Baixa</span></td><td><span class="badge-media">Médio</span></td><td>Exceção capturada; grid recarregada reflete estado real</td></tr>
+  <tr><td>Nome com SQL Injection enviado para a SP</td><td><span class="badge-baixa">Baixa</span></td><td><span class="badge-critico">Crítico em potencial</span></td><td>Stored procedures com parâmetros tipados protegem contra SQL Injection</td></tr>
+</table>
+
+<h3>Dependências</h3>
+<table>
+  <tr><th>Dependência</th><th>Tipo</th><th>Impacto se indisponível</th></tr>
+  <tr><td>SQL Server <code>localhost\SQLSERVER2022</code></td><td>Infraestrutura</td><td>Nenhum teste pode ser executado</td></tr>
+  <tr><td>Stored procedure <code>st_InsereCli</code></td><td>Banco</td><td>CT-CLI-F-01 a F-07 bloqueados</td></tr>
+  <tr><td>Stored procedure <code>st_AlteraCli</code></td><td>Banco</td><td>CT-CLI-F-08 a F-12 bloqueados</td></tr>
+  <tr><td>Stored procedure <code>ST_APAGACLI</code></td><td>Banco</td><td>CT-CLI-F-13 a F-15 bloqueados</td></tr>
+  <tr><td>Tabela <code>TBCLIENTES</code></td><td>Banco</td><td>Toda a suíte bloqueada</td></tr>
+  <tr><td>Correções BUG-001 a BUG-004 implementadas</td><td>Código</td><td>Testes CT-CLI-R-01 a R-07 falharão</td></tr>
+</table>
+
+<h3>Impactos</h3>
+<ul>
+  <li>Qualquer alteração nos parâmetros das stored procedures (<code>@nome</code>, <code>@id</code>) impacta diretamente os handlers de botão em <code>Cliente.pas</code></li>
+  <li>Mudança na ordem das colunas em <code>qryClienets</code> pode impactar <code>dbCliente.Fields[0]</code> e <code>Fields[1]</code> — mitigado pelo uso de <code>FieldByName</code> no <code>dbClienteCellClick</code></li>
+  <li>Alteração no <code>TDataSource</code> (<code>dsClientes</code>) afeta a vinculação com a <code>TDBGrid</code> e quebra a sincronização visual</li>
+</ul>
+
+<hr>
+
+<!-- ════ ALTERAÇÕES DA VERSÃO ════ -->
+<h2>Alterações da Versão</h2>
+
+<h3>Componentes Impactados pela Tarefa QA-001</h3>
+<table>
+  <tr><th>Componente</th><th>Arquivo</th><th>Tipo de Alteração</th></tr>
+  <tr><td><code>btnSalvarClick</code></td><td><code>Cliente.pas</code></td><td>Correção de texto (BUG-001), validação de campo (BUG-002), adição de try/except (BUG-003)</td></tr>
+  <tr><td><code>btnAtualizarClick</code></td><td><code>Cliente.pas</code></td><td>Adição de try/except (BUG-003), correção de <code>@nome</code> para <code>edtNome.Text</code> (BUG-004), guard clauses</td></tr>
+  <tr><td><code>btnExcluirClick</code></td><td><code>Cliente.pas</code></td><td>Adição de try/except (BUG-003), guard clause de seleção</td></tr>
+  <tr><td><code>dbClienteCellClick</code></td><td><code>Cliente.pas</code></td><td>Novo handler — carrega <code>NOME_CLI</code> em <code>edtNome</code> ao clicar na grid (BUG-004)</td></tr>
+  <tr><td><code>edtNome.MaxLength</code></td><td><code>Cliente.dfm</code></td><td>Novo atributo — <code>MaxLength = 50</code></td></tr>
+  <tr><td><code>dbCliente.OnCellClick</code></td><td><code>Cliente.dfm</code></td><td>Novo evento vinculado — <code>dbClienteCellClick</code></td></tr>
+  <tr><td><code>NomeValido</code></td><td><code>Cliente.pas</code></td><td>Nova função auxiliar privada</td></tr>
+  <tr><td><code>LinhaGridSelecionada</code></td><td><code>Cliente.pas</code></td><td>Nova função auxiliar privada</td></tr>
+  <tr><td><code>RecarregarGrid</code></td><td><code>Cliente.pas</code></td><td>Nova procedure auxiliar privada</td></tr>
+</table>
+
+<hr>
+
+<!-- ════ INFORMAÇÕES DO AMBIENTE ════ -->
+<h2>Informações do Ambiente</h2>
+<table>
+  <tr><th style="width:220px">Parâmetro</th><th>Valor</th></tr>
+  <tr><td><strong>Sistema Operacional</strong></td><td>Windows (Win32)</td></tr>
+  <tr><td><strong>Banco de Dados</strong></td><td>Microsoft SQL Server 2022</td></tr>
+  <tr><td><strong>Instância</strong></td><td><code>localhost\SQLSERVER2022</code></td></tr>
+  <tr><td><strong>Banco</strong></td><td><code>ProjetoVenda</code></td></tr>
+  <tr><td><strong>Servidor de Aplicação</strong></td><td>N/A — aplicação desktop local</td></tr>
+  <tr><td><strong>Ambiente</strong></td><td>Desenvolvimento / Teste</td></tr>
+  <tr><td><strong>IDE</strong></td><td>Embarcadero RAD Studio / Delphi</td></tr>
+  <tr><td><strong>Framework Visual</strong></td><td>VCL (Visual Component Library)</td></tr>
+  <tr><td><strong>Biblioteca de Acesso a Dados</strong></td><td>FireDAC</td></tr>
+  <tr><td><strong>Plataforma de Build</strong></td><td>Win32 Debug</td></tr>
+  <tr><td><strong>Executável</strong></td><td><code>Win32\Debug\VendaProduto.exe</code></td></tr>
+</table>
+
+<hr>
+
+<!-- ════ NOVIDADES DA VERSÃO ════ -->
+<h2>Novidades da Versão</h2>
+
+<h3>Resumo Executivo — Tarefa QA-001</h3>
+
+<p>A <strong>Tarefa QA-001</strong> implementa o módulo de <strong>Cadastro de Clientes</strong> do sistema PDV VendaProduto com quatro correções críticas de defeitos pré-existentes e novos comportamentos de qualidade.</p>
+
+<p><strong>O que foi entregue:</strong></p>
+<ul>
+  <li><strong>Inserção de clientes</strong> com validação obrigatória do nome antes de qualquer chamada ao banco, código gerado automaticamente pelo banco de dados e grid sincronizada após cada operação</li>
+  <li><strong>Atualização de clientes</strong> com carregamento automático do nome ao clicar na grid (eliminando o BUG-004), validação de seleção obrigatória e nome obrigatório</li>
+  <li><strong>Exclusão de clientes</strong> com confirmação, validação de seleção e tratamento de violação de integridade referencial</li>
+  <li><strong>Robustez total:</strong> todos os três handlers de botão protegidos com try/except, garantindo que nenhuma falha de banco trave ou encerre a aplicação</li>
+  <li><strong>UX consistente:</strong> campo <code>edtNome</code> com limite de 50 caracteres, limpeza e foco automático após inserção, mensagens em português sem erros de digitação</li>
+</ul>
+
+<p><strong>Bugs corrigidos nesta versão:</strong></p>
+<table class="bug-table">
+  <tr><th>Bug</th><th>Descrição</th><th>Impacto</th></tr>
+  <tr><td>BUG-001</td><td>Typo "Deseja Salavar" → "Deseja Salvar?"</td><td><span class="badge-baixa">Baixo (cosmético)</span></td></tr>
+  <tr><td>BUG-002</td><td>Ausência de validação de campo vazio antes de chamar a SP</td><td><span class="badge-alta">Alto (dados inválidos no banco)</span></td></tr>
+  <tr><td>BUG-003</td><td>Ausência de try/except nos 3 handlers</td><td><span class="badge-critico">Crítico (application crash)</span></td></tr>
+  <tr><td>BUG-004</td><td>Atualização lia o nome da grid em vez de <code>edtNome</code></td><td><span class="badge-alta">Alto (edição de nome impossível)</span></td></tr>
+</table>
+
+<div class="summary-box">
+  <strong>Total de casos de teste documentados: 68</strong>
+  <ul>
+    <li>Funcionais (fluxo feliz + alternativo): 18</li>
+    <li>Negativos e de validação: 9</li>
+    <li>Valor limite e equivalência: 9</li>
+    <li>Exploratórios: 11</li>
+    <li>Regressão: 10</li>
+    <li>Performance: 4</li>
+    <li>Segurança / Integridade: 9</li>
+    <li>Concorrência: 3</li>
+    <li>Usabilidade: 6</li>
+  </ul>
+</div>
+
+</body>
+</html>

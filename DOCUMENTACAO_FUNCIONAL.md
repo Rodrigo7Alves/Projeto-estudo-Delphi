@@ -1,443 +1,377 @@
 # Documentação Funcional — Sistema VendaProduto
 
-> **Projeto:** VendaProduto  
-> **Tecnologia:** Delphi (VCL) + FireDAC + SQL Server  
-> **Tipo:** Aplicação desktop Win32  
-> **Versão analisada:** Build Debug (Win32)  
-> **Data da análise:** Junho/2026  
+> **Projeto:** VendaProduto
+> **Tecnologia:** Delphi (VCL) + FireDAC + SQL Server
+> **Tipo:** Aplicação desktop Win32
+> **Versão analisada:** Build Debug (Win32)
+> **Data da análise:** Junho/2026
 
 ---
 
 ## Sumário
 
 1. [Objetivo da Aplicação](#1-objetivo-da-aplicação)
-2. [Funcionalidades Identificadas](#2-funcionalidades-identificadas)
-3. [Fluxos Principais](#3-fluxos-principais)
-4. [Telas Encontradas](#4-telas-encontradas)
-5. [Regras de Negócio](#5-regras-de-negócio)
-6. [Dependências](#6-dependências)
-7. [Pontos de Atenção para QA](#7-pontos-de-atenção-para-qa)
+2. [Visão Geral da Arquitetura](#2-visão-geral-da-arquitetura)
+3. [Módulos e Funcionalidades](#3-módulos-e-funcionalidades)
+4. [Fluxos Principais](#4-fluxos-principais)
+5. [Telas e Componentes](#5-telas-e-componentes)
+6. [Data Module e Acesso a Dados](#6-data-module-e-acesso-a-dados)
+7. [Regras de Negócio](#7-regras-de-negócio)
+8. [Dependências](#8-dependências)
 
 ---
 
 ## 1. Objetivo da Aplicação
 
-O **VendaProduto** é um sistema desktop de **Ponto de Venda (PDV)** desenvolvido em Delphi. Seu propósito é permitir que operadores realizem o cadastro de clientes e produtos, montem um carrinho de compras e registrem vendas em um banco de dados SQL Server.
+O **VendaProduto** é um sistema desktop de **Ponto de Venda (PDV)** desenvolvido em Delphi para Windows 32-bit. Permite que operadores cadastrem clientes e produtos, montem um carrinho de compras e registrem vendas concluídas em um banco de dados SQL Server.
 
-A aplicação é voltada para uso interno, operando em ambiente Windows 32-bit, e foi estruturada como um projeto de estudo com os módulos essenciais de um PDV básico.
-
----
-
-## 2. Funcionalidades Identificadas
-
-### 2.1 Cadastro de Clientes
-
-| Funcionalidade | Descrição |
-|---|---|
-| Inserir cliente | Cadastra um novo cliente informando o nome |
-| Listar clientes | Exibe todos os clientes cadastrados em uma grade |
-| Atualizar cliente | Atualiza os dados do cliente selecionado na grade |
-| Excluir cliente | Remove o cliente selecionado da base de dados |
-
-### 2.2 Cadastro de Produtos
-
-| Funcionalidade | Descrição |
-|---|---|
-| Inserir produto | Cadastra um novo produto com nome, quantidade e valor unitário |
-| Listar produtos | Exibe todos os produtos cadastrados em uma grade |
-| Atualizar produto | Atualiza nome, quantidade e valor do produto selecionado |
-| Excluir produto | Remove o produto selecionado da base de dados |
-
-### 2.3 Realização de Vendas
-
-| Funcionalidade | Descrição |
-|---|---|
-| Filtrar clientes | Busca clientes em tempo real pelo nome durante a venda |
-| Filtrar produtos | Busca produtos em tempo real pelo nome durante a venda |
-| Selecionar cliente | Associa um cliente à venda em andamento |
-| Selecionar produto | Seleciona o produto a ser adicionado ao carrinho |
-| Calcular subtotal | Calcula automaticamente o total do item (qtd × valor) ao sair do campo de quantidade |
-| Incluir item | Adiciona o produto e quantidade ao carrinho da venda |
-| Remover item | Remove o item selecionado do carrinho |
-| Calcular total geral | Atualiza o total da venda a cada inclusão ou remoção de item |
-| Finalizar venda | Persiste os itens e o cabeçalho da venda no banco de dados |
-| Gerar código de venda | Gera automaticamente o próximo código sequencial de venda |
-
-### 2.4 Navegação Geral
-
-| Funcionalidade | Descrição |
-|---|---|
-| Menu principal | Acesso aos módulos via menu superior |
-| Atalhos visuais | Acesso aos módulos por imagens clicáveis na tela inicial |
-| Barra de status | Exibe data e hora atuais no rodapé da tela principal |
+A aplicação é voltada para uso interno e foi estruturada como projeto de estudo com os módulos essenciais de um PDV básico.
 
 ---
 
-## 3. Fluxos Principais
+## 2. Visão Geral da Arquitetura
 
-### 3.1 Fluxo de Cadastro de Cliente
+### Arquitetura de duas camadas (VCL Two-Tier)
 
 ```
-Abrir tela de Clientes
-  → Digitar nome no campo "Nome"
-  → Clicar em "Salvar"
-    → Confirmação: "Deseja Salvar?" [Sim / Não]
-      → [Sim] Executa stored procedure de inserção
-             → Grade é recarregada
-             → Campo nome é limpo
-      → [Não] Exibe "Ação Cancelada"
+┌─────────────────────────────────────────────────────────┐
+│                     Camada de Apresentação               │
+│  frmMain   frmCliente   frmProdutos   frmVendas         │
+└────────────────────────┬────────────────────────────────┘
+                         │ acessa
+┌────────────────────────▼────────────────────────────────┐
+│              Data Module (dm: Tdm)                       │
+│  TFDConnection │ TFDQuery │ TFDStoredProc               │
+└────────────────────────┬────────────────────────────────┘
+                         │ comunica-se via
+┌────────────────────────▼────────────────────────────────┐
+│              SQL Server (ProjetoVenda)                   │
+│  TBCLIENTES │ TBPRODUTOS │ TBVENDAS │ Stored Procedures │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### 3.2 Fluxo de Atualização de Cliente
+- Todos os formulários são criados na inicialização (`VendaProduto.dpr`) e permanecem em memória durante toda a execução.
+- Todos os formulários são abertos com `ShowModal`.
+- Toda escrita no banco ocorre exclusivamente via stored procedures — sem SQL inline nas units de formulário.
+- O data module `dm` é um singleton global acessado por todos os formulários.
 
-```
-Abrir tela de Clientes
-  → Selecionar registro na grade
-  → Clicar em "Atualizar"
-    → Confirmação: "Deseja Atualizar?" [Sim / Não]
-      → [Sim] Executa stored procedure com ID e Nome da linha selecionada
-             → Grade é recarregada
-      → [Não] Exibe "Ação Cancelada"
-```
-
-### 3.3 Fluxo de Exclusão de Cliente
-
-```
-Abrir tela de Clientes
-  → Selecionar registro na grade
-  → Clicar em "Excluir"
-    → Confirmação: "Deseja Excluir?" [Sim / Não]
-      → [Sim] Executa stored procedure de exclusão com ID do registro
-             → Grade é recarregada
-      → [Não] Exibe "Ação Cancelada"
-```
-
-> Os fluxos de **Cadastro, Atualização e Exclusão de Produtos** seguem o mesmo padrão acima, com os campos adicionais de quantidade e valor.
-
-### 3.4 Fluxo de Realização de Venda
-
-```
-Abrir tela de Vendas
-  → Sistema carrega o próximo código de venda
-  → Selecionar cliente (clique na grade ou filtro por nome)
-  → Selecionar produto (clique na grade ou filtro por nome)
-  → Informar quantidade (SpinEdit)
-    → Ao sair do campo: subtotal é calculado automaticamente
-  → Clicar em "Incluir Item"
-    → Item é adicionado ao carrinho (ListView)
-    → Total geral é recalculado
-  → [Opcional] Selecionar item no carrinho → Clicar "Excluir Item"
-    → Item removido → Total recalculado
-  → Clicar em "Realizar Venda"
-    → Para cada item do carrinho:
-        → Executa stored procedure de inserção de item
-        → Recebe @return e @erMsg
-        → Se @return = 2 ou 3: exibe mensagem de erro
-    → Se @return = 1 ou 3: executa stored procedure de cabeçalho da venda
-    → Código de venda é incrementado para o próximo
-```
-
----
-
-## 4. Telas Encontradas
-
-### 4.1 Tela Principal — `frmMain` (Main.pas)
-
-Tela inicial e hub de navegação do sistema.
-
-**Componentes principais:**
-- `Image1` — atalho visual para Clientes
-- `imgProdutos` — atalho visual para Produtos
-- `imgVendas` — atalho visual para Vendas
-- `MainMenu1` — menu superior com itens: Cadastro > Cliente, Cadastro > Produtos, Venda
-- `StatusBar1` — barra de status com data e hora (painéis índice 1 e 2)
-
-**Observação:** Os itens de menu `Cliente1` e `Produtos1` estão com código comentado e não funcionam.
-
----
-
-### 4.2 Tela de Clientes — `frmCliente` (Cliente.pas)
-
-Gerenciamento do cadastro de clientes.
-
-**Componentes principais:**
-
-| Componente | Tipo | Função |
-|---|---|---|
-| `edtNome` | TEdit | Campo de entrada do nome do cliente |
-| `btnSalvar` | TButton | Salva novo cliente |
-| `btnAtualizar` | TButton | Atualiza cliente selecionado na grade |
-| `btnExcluir` | TButton | Exclui cliente selecionado na grade |
-| `dbCliente` | TDBGrid | Exibe lista de clientes (colunas: ID, Nome) |
-
----
-
-### 4.3 Tela de Produtos — `frmProdutos` (Produtos.pas)
-
-Gerenciamento do cadastro de produtos.
-
-**Componentes principais:**
-
-| Componente | Tipo | Função |
-|---|---|---|
-| `edtNome` | TEdit | Nome do produto |
-| `edtQtd` | TSpinEdit | Quantidade em estoque |
-| `edtValor` | TEdit | Valor unitário do produto |
-| `btnSalvar` | TButton | Salva novo produto |
-| `btnAtualizar` | TButton | Atualiza produto selecionado |
-| `btnExcluir` | TButton | Exclui produto selecionado |
-| `dbProdutos` | TDBGrid | Exibe lista de produtos (ID, Nome, Qtd, Valor) |
-
-**Evento de carregamento:** A grade de produtos é aberta automaticamente no `FormShow`.
-
----
-
-### 4.4 Tela de Vendas — `frmVendas` (Vendas.pas)
-
-Tela principal de operação de vendas. Dividida em três painéis.
-
-**Painel de Clientes (`panCliente`):**
-
-| Componente | Tipo | Função |
-|---|---|---|
-| `edtFiltroCli` | TEdit | Filtro de busca por nome do cliente |
-| `dbCliente` | TDBGrid | Lista de clientes filtrados |
-| `edtNomeClie` | TEdit | Exibe nome do cliente selecionado |
-
-**Painel de Produtos (`panProd`):**
-
-| Componente | Tipo | Função |
-|---|---|---|
-| `edtFiltroProd` | TEdit | Filtro de busca por nome do produto |
-| `dbProdutos` | TDBGrid | Lista de produtos filtrados |
-| `edtProd` | TEdit | Exibe nome do produto selecionado |
-| `edtValorProduto` | TEdit | Exibe valor unitário do produto selecionado |
-
-**Painel de Venda (`panVenda`):**
-
-| Componente | Tipo | Função |
-|---|---|---|
-| `lblCodVenda` | TLabel | Exibe o código da venda atual |
-| `edtQtdProd` | TSpinEdit | Quantidade do produto a incluir |
-| `edtTotalProduto` | TEdit | Total calculado do item (qtd × valor) |
-| `lstLista` | TListView | Carrinho com itens da venda (Produto, Valor, Qtd, Total) |
-| `lblTotalVenda` | TLabel | Total geral da venda |
-| `btnIncluiItem` | TButton | Adiciona item ao carrinho |
-| `btnExcluiVenda` | TButton | Remove item selecionado do carrinho |
-| `btnRealizaVenda` | TButton | Finaliza e persiste a venda |
-
----
-
-### 4.5 Data Module — `dm` (dmDados.pas)
-
-Módulo de dados centralizado. Não é uma tela visível, mas é a camada de acesso a dados compartilhada por todas as telas.
-
-**Conexão:**
-- `conProjetoVenda` — TFDConnection para SQL Server
-
-**Queries:**
-- `qryClienets` — lista de clientes (campos: ID_CLI, NOME_CLI)
-- `qryProdutos` — lista de produtos (campos: ID_PROD, NOME_PROD, QTD_PROD, VL_PROD)
-- `qryCodVenda` — retorna o último código de venda para gerar o próximo sequencial
-
-**Stored Procedures:**
-
-| Componente | Operação |
-|---|---|
-| `stInsereCliente` | Insere novo cliente (`@nome`) |
-| `stAtualizaCliente` | Atualiza cliente (`@id`, `@nome`) |
-| `stExcluiCliente` | Exclui cliente (`@id`) |
-| `stInsereProduto` | Insere novo produto (`@nome`, `@qtd`, `@vl`) |
-| `stAtualizaProduto` | Atualiza produto (`@id`, `@nome`, `@qtd`, `@vl`) |
-| `stExcluiProduto` | Exclui produto (`@id`) |
-| `stInsereItensVenda` | Insere item de venda (`@nm_Prod`, `@qtdVenda`, `@CodVenda`) → retorna `@return`, `@erMsg` |
-| `stInsereVenda` | Insere cabeçalho da venda (`@idCli`, `@total`, `@codVenda`) |
-
----
-
-## 5. Regras de Negócio
-
-| ID | Regra | Localização |
-|---|---|---|
-| **RN01** | A quantidade de um item na venda deve ser maior que zero para ser incluída no carrinho | `Vendas.pas` — `btnIncluiItemClick` |
-| **RN02** | O subtotal de cada item é calculado como: `total = quantidade × valor unitário` | `Vendas.pas` — `edtQtdProdExit` |
-| **RN03** | O total geral da venda é a soma dos subtotais de todos os itens do carrinho | `Vendas.pas` — recalculado em `btnIncluiItemClick` e `btnExcluiVendaClick` |
-| **RN04** | O código de venda é gerado sequencialmente com base no último código registrado no banco | `Vendas.pas` — `FormShow` e `btnRealizaVendaClick` |
-| **RN05** | A stored procedure de itens retorna um código (`@return`) e mensagem de erro (`@erMsg`) que determinam o fluxo da venda | `Vendas.pas` — `btnRealizaVendaClick` |
-| **RN06** | O cabeçalho da venda só é gravado se `@return = 1` (sucesso total) ou `@return = 3` (sucesso parcial com erro) | `Vendas.pas` — `btnRealizaVendaClick` |
-| **RN07** | Toda operação de escrita (inserir, atualizar, excluir) exige confirmação explícita do usuário via caixa de diálogo Sim/Não | `Cliente.pas`, `Produtos.pas` — todos os botões de ação |
-| **RN08** | A atualização de cliente usa o ID e o Nome diretamente da linha selecionada na grade (não do campo de entrada) | `Cliente.pas` — `btnAtualizarClick` |
-| **RN09** | A filtragem de clientes e produtos na tela de vendas é feita por correspondência parcial (`LIKE %termo%`) | `Vendas.pas` — `edtFiltroCliChange`, `edtFiltroProdChange` |
-| **RN10** | O valor unitário do produto exibido na venda é carregado automaticamente ao selecionar o produto na grade | `Vendas.pas` — `dbProdutosCellClick` |
-
----
-
-## 6. Dependências
-
-### 6.1 Tecnológicas
-
-| Dependência | Detalhes |
-|---|---|
-| **Delphi (VCL)** | Framework visual para aplicações Windows |
-| **FireDAC** | Biblioteca de acesso a dados utilizada para conexão e execução de queries/stored procedures |
-| **SQL Server** | Banco de dados relacional onde estão armazenados clientes, produtos e vendas |
-| **Windows 32-bit** | Plataforma de execução (build configurado para Win32) |
-
-### 6.2 Banco de Dados
-
-A aplicação depende das seguintes estruturas no SQL Server:
-
-**Tabelas (inferidas):**
-- `Clientes` — com campos `ID_CLI` (auto-increment), `NOME_CLI`
-- `Produtos` — com campos `ID_PROD` (auto-increment), `NOME_PROD`, `QTD_PROD`, `VL_PROD`
-- Tabela de vendas (cabeçalho) — com campos de ID do cliente, total e código de venda
-- Tabela de itens de venda — com campos de nome do produto, quantidade e código de venda
-
-**Stored Procedures necessárias (8 ao total):**
-`sp_InsereCliente`, `sp_AtualizaCliente`, `sp_ExcluiCliente`,
-`sp_InsereProduto`, `sp_AtualizaProduto`, `sp_ExcluiProduto`,
-`sp_InsereItensVenda`, `sp_InsereVenda`
-
-### 6.3 Entre Módulos
+### Dependências entre módulos
 
 ```
 frmMain
-  ├── usa → frmCliente
-  ├── usa → frmProdutos
-  └── usa → frmVendas
-              ├── usa → dm.qryClienets
-              ├── usa → dm.qryProdutos
-              └── usa → dm.stInsereItensVenda / stInsereVenda
-
-frmCliente  → usa dm (stInsereCliente, stAtualizaCliente, stExcluiCliente, qryClienets)
-frmProdutos → usa dm (stInsereProduto, stAtualizaProduto, stExcluiProduto, qryProdutos)
-frmVendas   → usa dm (qryClienets, qryProdutos, qryCodVenda, stInsereItensVenda, stInsereVenda)
+  ├── frmCliente  → dm (stInsereCliente, stAtualizaCliente, stExcluiCliente, qryClienets)
+  ├── frmProdutos → dm (stInsereProduto, stAtualizaProduto, stExcluiProduto, qryProdutos)
+  └── frmVendas   → dm (qryClienets, qryProdutos, qryCodVenda, stInsereItensVenda, stInsereVenda)
 ```
 
 ---
 
-## 7. Pontos de Atenção para QA
+## 3. Módulos e Funcionalidades
 
-### 7.1 Bugs Confirmados no Código
+### 3.1 Cadastro de Clientes
 
-#### 🔴 CRÍTICO — Off-by-one na iteração da ListView
+| Funcionalidade     | Descrição                                                         |
+|--------------------|-------------------------------------------------------------------|
+| Inserir cliente    | Cadastra novo cliente informando o nome; confirmação obrigatória  |
+| Listar clientes    | Exibe todos os clientes em grade (ID, Nome)                       |
+| Atualizar cliente  | Atualiza dados da linha selecionada na grade; confirmação         |
+| Excluir cliente    | Remove o cliente selecionado da base; confirmação                 |
 
-**Arquivo:** `Vendas.pas` — `btnIncluiItemClick` e `btnExcluiVendaClick`
+### 3.2 Cadastro de Produtos
 
-```pascal
-// ERRADO: Count gera índice inválido na última iteração
-for I := 0 to lstLista.Items.Count do
+| Funcionalidade     | Descrição                                                         |
+|--------------------|-------------------------------------------------------------------|
+| Inserir produto    | Cadastra novo produto com nome, quantidade e valor unitário       |
+| Listar produtos    | Exibe todos os produtos em grade (ID, Nome, Qtd, Valor)           |
+| Atualizar produto  | Atualiza nome, quantidade e valor da linha selecionada na grade   |
+| Excluir produto    | Remove o produto selecionado da base                              |
 
-// CORRETO:
-for I := 0 to lstLista.Items.Count - 1 do
+### 3.3 Realização de Vendas
+
+| Funcionalidade       | Descrição                                                            |
+|----------------------|----------------------------------------------------------------------|
+| Gerar código venda   | Carrega próximo código sequencial ao abrir a tela                    |
+| Filtrar clientes     | Busca por nome parcial em tempo real                                 |
+| Filtrar produtos     | Busca por nome parcial em tempo real                                 |
+| Selecionar cliente   | Clique na grade preenche nome do cliente na venda                    |
+| Selecionar produto   | Clique na grade preenche nome e valor unitário                       |
+| Calcular subtotal    | Ao sair do campo de quantidade: `subtotal = qtd × valor`             |
+| Incluir item         | Adiciona produto+quantidade ao carrinho e recalcula total            |
+| Remover item         | Remove item selecionado do carrinho e recalcula total                |
+| Finalizar venda      | Persiste itens e cabeçalho no banco; incrementa código de venda      |
+
+### 3.4 Navegação
+
+| Funcionalidade      | Descrição                                                            |
+|---------------------|----------------------------------------------------------------------|
+| Atalhos visuais     | Imagens clicáveis na tela principal abrem os módulos                 |
+| Menu superior       | Acesso via `Cadastro > Cliente`, `Cadastro > Produtos`, `Venda`      |
+| Barra de status     | Exibe data e hora no `FormShow` da tela principal                    |
+
+---
+
+## 4. Fluxos Principais
+
+### 4.1 Fluxo de Cadastro de Cliente
+
+```
+Abrir frmCliente
+  → Digitar nome em edtNome
+  → Clicar btnSalvar
+    → Confirmação "Deseja Salvar?" [Sim | Não]
+      [Sim] → dm.stInsereCliente(@nome) → ExecProc
+             → dm.qryClienets: Close; Open
+             → edtNome.Clear
+      [Não] → MessageBox "Ação Cancelada"
 ```
 
-**Impacto:** Causa `Access Violation` (crash) ao incluir ou remover qualquer item do carrinho quando há ao menos um item na lista.  
-**Prioridade de correção:** Imediata.
+### 4.2 Fluxo de Atualização de Cliente
 
----
-
-#### 🔴 CRÍTICO — Variável `retorno` não inicializada
-
-**Arquivo:** `Vendas.pas` — `btnRealizaVendaClick`
-
-```pascal
-var
-  retorno, i: integer; // valor indefinido se o loop não executar
+```
+Abrir frmCliente
+  → Selecionar linha em dbCliente
+  → Clicar btnAtualizar
+    → Confirmação "Deseja Atualizar?" [Sim | Não]
+      [Sim] → dm.stAtualizaCliente(@id = Fields[0], @nome = Fields[1]) → ExecProc
+             → dm.qryClienets: Close; Open
+      [Não] → MessageBox "Ação Cancelada"
 ```
 
-**Impacto:** Se o carrinho estiver vazio e o usuário clicar em "Realizar Venda", a condição `if (retorno = 1) or (retorno = 3)` pode ser verdadeira acidentalmente, gravando uma venda sem itens no banco.  
-**Prioridade de correção:** Imediata.
+> **Atenção:** a atualização lê ID e Nome da **grade** — não do campo `edtNome`.
 
----
+### 4.3 Fluxo de Exclusão de Cliente
 
-#### 🔴 CRÍTICO — Conversões sem tratamento de exceção
-
-**Arquivo:** `Vendas.pas` — `edtQtdProdExit`, `btnIncluiItemClick`, `btnExcluiVendaClick`
-
-Uso de `StrToInt` e `StrToFloat` diretamente sobre campos de texto sem `try/except`.
-
-**Impacto:** Se o campo estiver vazio ou contiver texto inválido, a aplicação lança `EConvertError` e trava.  
-**Cenários a testar:** campo vazio, letras, vírgula/ponto em campos de inteiro, valores negativos.
-
----
-
-### 7.2 Falhas de Validação de Negócio
-
-#### 🟡 MÉDIO — Nenhum campo obrigatório é validado antes de salvar
-
-| Tela | Campo | Comportamento atual |
-|---|---|---|
-| Clientes | Nome | Permite salvar cliente com nome vazio |
-| Produtos | Nome | Permite salvar produto com nome vazio |
-| Produtos | Valor | Campo livre — aceita texto inválido |
-| Vendas | Cliente | Permite finalizar venda sem cliente selecionado |
-| Vendas | Itens | Permite tentar finalizar venda com carrinho vazio |
-
----
-
-#### 🟡 MÉDIO — Botão "Atualizar" de Clientes não usa o campo de entrada
-
-O `btnAtualizar` em `Cliente.pas` lê os dados da **grade** (`dbCliente.Fields[1].Value`), não do campo `edtNome`. O usuário não consegue editar o nome pelo formulário — o botão apenas re-salva o valor atual.
-
----
-
-#### 🟡 MÉDIO — Total da venda enviado como string com prefixo "R$"
-
-```pascal
-paramByName('@total').Value := lblTotalVenda.Caption; // ex: "R$1500,50"
+```
+Abrir frmCliente
+  → Selecionar linha em dbCliente
+  → Clicar btnExcluir
+    → Confirmação "Deseja Excluir?" [Sim | Não]
+      [Sim] → dm.stExcluiCliente(@id = Fields[0]) → ExecProc
+             → dm.qryClienets: Close; Open
+      [Não] → MessageBox "Ação Cancelada"
 ```
 
-A stored procedure recebe uma string formatada em vez de um valor numérico, o que pode causar erro de conversão no banco dependendo do tipo do parâmetro.
+> Os fluxos de **Inserir, Atualizar e Excluir Produto** seguem o mesmo padrão, adicionando os parâmetros `@qtd` e `@vl`.
+
+### 4.4 Fluxo de Realização de Venda
+
+```
+Abrir frmVendas
+  → dm.qryCodVenda: Close; Open
+  → lblCodVenda ← MAX(ID_Cod_Venda) + 1
+
+  [Seleção de cliente]
+  → Digitar em edtFiltroCli (opcional) → filtra qryClienets em tempo real
+  → Clicar em linha de dbCliente → edtNomeClie ← Fields[1]
+
+  [Seleção de produto]
+  → Digitar em edtFiltroProd (opcional) → filtra qryProdutos em tempo real
+  → Clicar em linha de dbProdutos
+      → edtProd ← Fields[1]
+      → edtValorProduto ← Fields[3]
+
+  [Incluir item]
+  → Ajustar edtQtdProd (SpinEdit)
+  → Sair do campo edtQtdProd (OnExit)
+      → edtTotalProduto ← edtQtdProd × edtValorProduto
+  → Clicar btnIncluiItem
+      → Se qtd > 0: adiciona linha em lstLista (Produto | Valor | Qtd | Total)
+                    recalcula lblTotalVenda
+      → Se qtd = 0: ShowMessage "Por Favor insira uma quantidade"
+
+  [Remover item]
+  → Selecionar linha em lstLista
+  → Clicar btnExcluiVenda
+      → lstLista.DeleteSelected
+      → recalcula lblTotalVenda
+
+  [Finalizar venda]
+  → Clicar btnRealizaVenda
+  → Para cada item (i = 0 to Count-1):
+        dm.stInsereItensVenda(@nm_Prod, @qtdVenda, @CodVenda) → ExecProc
+        retorno ← @return; erMsg ← @erMsg
+        Se retorno = 2 ou 3 → ShowMessage(erMsg)
+  → Se retorno = 1 ou 3:
+        dm.stInsereVenda(@idCli = dbCliente.Fields[0],
+                         @total = lblTotalVenda.Caption,
+                         @codVenda = lblCodVenda.Caption) → ExecProc
+  → lblCodVenda ← qryCodVendaUnnamed1 + 1
+```
 
 ---
 
-#### 🟡 MÉDIO — Código de venda calculado localmente sem revalidação
+## 5. Telas e Componentes
 
-O próximo código é calculado com `qryCodVendaUnnamed1.Value + 1` sem reabrir a query. Em uso simultâneo por múltiplos usuários (ou após falha de venda), o código pode ficar dessincronizado com o banco, gerando duplicidade ou salto de sequência.
+### 5.1 frmMain — Tela Principal
 
----
+Hub de navegação da aplicação.
 
-### 7.3 Problemas de Usabilidade
+| Componente    | Tipo         | Função                                          |
+|---------------|--------------|-------------------------------------------------|
+| `Image1`      | TImage       | Atalho visual → abre frmCliente                 |
+| `imgProdutos` | TImage       | Atalho visual → abre frmProdutos                |
+| `imgVendas`   | TImage       | Atalho visual → abre frmVendas                  |
+| `MainMenu1`   | TMainMenu    | Menu superior: Cadastro > Cliente/Produtos, Venda |
+| `StatusBar1`  | TStatusBar   | Painel[1] = Data, Painel[2] = Hora              |
 
-#### 🟢 BAIXO — Itens de menu não funcionais sem indicação visual
-
-`Cliente > Clientes` e `Produtos > Produtos` no menu principal têm código comentado. O usuário clica e nada acontece, sem qualquer feedback.
-
-#### 🟢 BAIXO — Nenhuma validação de seleção antes de Excluir/Atualizar
-
-Clicar em "Excluir" ou "Atualizar" sem selecionar uma linha na grade pode gerar erro ao acessar `Fields[0].Value` em um dataset vazio.
-
-#### 🟢 BAIXO — Barra de status não atualiza o relógio em tempo real
-
-Data e hora são definidas apenas no `FormShow`. O horário exibido não avança enquanto a aplicação está aberta.
-
-#### 🟢 BAIXO — Sem mensagem de sucesso após operações
-
-Após salvar, atualizar ou excluir com sucesso, não há confirmação visual — a grade simplesmente recarrega, podendo confundir o usuário quanto ao resultado da operação.
+> **Bug:** `Cliente1Click` e `Produtos1Click` têm o código comentado — não funcionam.
 
 ---
 
-### 7.4 Casos de Teste Sugeridos
+### 5.2 frmCliente — Cadastro de Clientes
 
-| ID | Cenário | Tipo | Prioridade |
-|---|---|---|---|
-| CT01 | Incluir item no carrinho com 1 produto | Funcional | Alta |
-| CT02 | Incluir item com quantidade = 0 | Validação | Alta |
-| CT03 | Remover item do carrinho com 1 item | Funcional | Alta |
-| CT04 | Remover item do carrinho com 0 itens | Limite | Alta |
-| CT05 | Finalizar venda com carrinho vazio | Limite | Alta |
-| CT06 | Finalizar venda sem cliente selecionado | Validação | Alta |
-| CT07 | Salvar cliente com nome vazio | Validação | Média |
-| CT08 | Salvar produto com valor inválido (texto) | Validação | Alta |
-| CT09 | Clicar em "Atualizar" sem selecionar linha na grade | Limite | Média |
-| CT10 | Clicar em "Excluir" sem selecionar linha na grade | Limite | Média |
-| CT11 | Verificar se total da venda é calculado corretamente com múltiplos itens | Funcional | Alta |
-| CT12 | Verificar se o código de venda incrementa após cada venda finalizada | Funcional | Média |
-| CT13 | Filtrar clientes por nome parcial na tela de vendas | Funcional | Média |
-| CT14 | Filtrar produtos por nome parcial na tela de vendas | Funcional | Média |
-| CT15 | Abrir tela de vendas e verificar carregamento do código inicial | Funcional | Baixa |
+| Componente    | Tipo      | Função                                               |
+|---------------|-----------|------------------------------------------------------|
+| `edtNome`     | TEdit     | Entrada do nome do cliente (inserção)                |
+| `btnSalvar`   | TButton   | Insere novo cliente                                  |
+| `btnAtualizar`| TButton   | Atualiza cliente selecionado na grade                |
+| `btnExcluir`  | TButton   | Exclui cliente selecionado na grade                  |
+| `dbCliente`   | TDBGrid   | Grade de clientes (ID_CLI, NOME_CLI)                 |
 
 ---
 
-*Documento gerado com base na análise estática do código-fonte do projeto VendaProduto (Delphi/FireDAC).*
+### 5.3 frmProdutos — Cadastro de Produtos
+
+| Componente    | Tipo       | Função                                              |
+|---------------|------------|-----------------------------------------------------|
+| `edtNome`     | TEdit      | Nome do produto                                     |
+| `edtQtd`      | TSpinEdit  | Quantidade em estoque (numérico com spin)            |
+| `edtValor`    | TEdit      | Valor unitário (campo livre — sem máscara)           |
+| `btnSalvar`   | TButton    | Insere novo produto                                 |
+| `btnAtualizar`| TButton    | Atualiza produto selecionado                        |
+| `btnExcluir`  | TButton    | Exclui produto selecionado                          |
+| `dbProdutos`  | TDBGrid    | Grade de produtos (ID_PROD, NOME_PROD, QTD_PROD, VL_PROD) |
+
+> **Evento:** `FormShow` reabre `qryProdutos` automaticamente.
+
+---
+
+### 5.4 frmVendas — Tela de Vendas
+
+**Painel de Clientes (panCliente)**
+
+| Componente     | Tipo      | Função                                              |
+|----------------|-----------|-----------------------------------------------------|
+| `edtFiltroCli` | TEdit     | Filtro em tempo real por NOME_CLI                   |
+| `dbCliente`    | TDBGrid   | Lista de clientes (ID_CLI, NOME_CLI)                |
+| `edtNomeClie`  | TEdit     | Nome do cliente selecionado (somente leitura lógica)|
+
+**Painel de Produtos (panProd)**
+
+| Componente      | Tipo      | Função                                             |
+|-----------------|-----------|----------------------------------------------------|
+| `edtFiltroProd` | TEdit     | Filtro em tempo real por NOME_PROD                 |
+| `dbProdutos`    | TDBGrid   | Lista de produtos (ID, Nome, Qtd, Valor)           |
+| `edtProd`       | TEdit     | Nome do produto selecionado                        |
+| `edtValorProduto`| TEdit    | Valor unitário do produto selecionado              |
+
+**Painel de Venda (panVenda)**
+
+| Componente         | Tipo       | Função                                          |
+|--------------------|------------|-------------------------------------------------|
+| `lblCodVenda`      | TLabel     | Código da venda em andamento                    |
+| `edtQtdProd`       | TSpinEdit  | Quantidade do produto a incluir                 |
+| `edtTotalProduto`  | TEdit      | Subtotal calculado (qtd × valor)                |
+| `lstLista`         | TListView  | Carrinho: Produto \| Valor Unit. \| Qtd \| Total |
+| `lblTotalVenda`    | TLabel     | Total geral da venda (ex: `R$150,00`)           |
+| `btnIncluiItem`    | TButton    | Adiciona item ao carrinho                        |
+| `btnExcluiVenda`   | TButton    | Remove item selecionado do carrinho              |
+| `btnRealizaVenda`  | TButton    | Finaliza e persiste a venda                      |
+
+---
+
+## 6. Data Module e Acesso a Dados
+
+### 6.1 Conexão
+
+```
+Servidor : localhost\SQLSERVER2022
+Banco    : ProjetoVenda
+Usuário  : sa
+Senha    : 123456 (armazenada em texto plano no dmDados.dfm)
+Driver   : MSSQL (FireDAC)
+```
+
+### 6.2 Queries (leitura)
+
+| Componente       | SQL                                   | Campos expostos                          |
+|------------------|---------------------------------------|------------------------------------------|
+| `qryClienets`    | `SELECT * FROM TBCLIENTES`            | ID_CLI (int, autoincrement), NOME_CLI    |
+| `qryProdutos`    | `select * from tbprodutos`            | ID_PROD, NOME_PROD, QTD_PROD, VL_PROD   |
+| `qryCodVenda`    | `SELECT MAX(ID_Cod_Venda) FROM TBVENDAS` | Unnamed1 (integer)                    |
+
+### 6.3 Stored Procedures (escrita)
+
+| Componente           | SP no banco                         | Parâmetros de entrada              | Retorno                    |
+|----------------------|-------------------------------------|------------------------------------|----------------------------|
+| `stInsereCliente`    | `dbo.st_InsereCli`                  | `@nome` (string 50)                | `@RETURN_VALUE`            |
+| `stAtualizaCliente`  | `dbo.st_AlteraCli`                  | `@id` (int), `@nome` (string 50)   | `@RETURN_VALUE`            |
+| `stExcluiCliente`    | `dbo.ST_APAGACLI`                   | `@ID` (int)                        | `@RETURN_VALUE`            |
+| `stInsereProduto`    | `dbo.st_InsereProd`                 | `@nome`, `@qtd` (int), `@vl` (currency) | `@RETURN_VALUE`       |
+| `stAtualizaProduto`  | `dbo.st_AtualizaProd`               | `@id`, `@nome`, `@qtd`, `@vl`      | `@RETURN_VALUE`            |
+| `stExcluiProduto`    | `dbo.stExcluiProd`                  | `@id` (int)                        | `@RETURN_VALUE`            |
+| `stInsereItensVenda` | `dbo.st_InsereItensVenda`           | `@nm_Prod`, `@qtdVenda`, `@codVenda` | `@return` (int I/O), `@erMsg` (string I/O) |
+| `stInsereVenda`      | `dbo.st_InsereVenda`                | `@idCli`, `@total` (currency), `@codVenda` | `@RETURN_VALUE`   |
+
+### 6.4 Semântica de retorno da SP de itens
+
+| `@return` | Significado                                          | Comportamento no código              |
+|-----------|------------------------------------------------------|--------------------------------------|
+| `1`       | Sucesso — item inserido, estoque suficiente          | Grava cabeçalho da venda             |
+| `2`       | Falha — produto não encontrado ou erro de item       | Exibe `@erMsg`, não grava cabeçalho  |
+| `3`       | Sucesso parcial / aviso (ex: estoque zerado)         | Exibe `@erMsg` E grava cabeçalho     |
+
+---
+
+## 7. Regras de Negócio
+
+| ID    | Regra                                                                                                        | Localização                          |
+|-------|--------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| RN01  | Quantidade do item na venda deve ser > 0 para inclusão no carrinho                                           | `Vendas.pas` — `btnIncluiItemClick`  |
+| RN02  | Subtotal do item = quantidade × valor unitário                                                                | `Vendas.pas` — `edtQtdProdExit`      |
+| RN03  | Total geral = soma de todos os subtotais do carrinho; recalculado a cada inclusão ou remoção                 | `Vendas.pas` — botões de item        |
+| RN04  | Código de venda gerado como `MAX(ID_Cod_Venda) + 1` no `FormShow`                                           | `Vendas.pas` — `FormShow`            |
+| RN05  | Cabeçalho de venda é gravado somente se `@return = 1` ou `@return = 3`                                       | `Vendas.pas` — `btnRealizaVendaClick`|
+| RN06  | Se `@return = 2` ou `@return = 3`, a mensagem `@erMsg` da SP é exibida ao operador                           | `Vendas.pas` — `btnRealizaVendaClick`|
+| RN07  | Toda operação de escrita (inserir/atualizar/excluir) requer confirmação explícita via diálogo Sim/Não         | `Cliente.pas`, `Produtos.pas`        |
+| RN08  | Atualização de cliente usa ID e Nome da linha selecionada na grade — não do campo de entrada                  | `Cliente.pas` — `btnAtualizarClick`  |
+| RN09  | Filtro de clientes e produtos usa correspondência parcial (`LIKE %termo%`) sobre a query em memória           | `Vendas.pas` — eventos OnChange      |
+| RN10  | Valor unitário do produto é carregado automaticamente do campo `VL_PROD` (índice 3) ao selecionar na grade   | `Vendas.pas` — `dbProdutosCellClick` |
+| RN11  | Após finalizar venda, o código exibido é incrementado localmente (`qryCodVendaUnnamed1.Value + 1`) sem reabrir a query | `Vendas.pas` — `btnRealizaVendaClick` |
+| RN12  | O total da venda é enviado ao banco como `lblTotalVenda.Caption` (string com prefixo "R$") — não como número | `Vendas.pas` — `btnRealizaVendaClick`|
+
+---
+
+## 8. Dependências
+
+### 8.1 Tecnológicas
+
+| Dependência      | Detalhes                                                         |
+|------------------|------------------------------------------------------------------|
+| Delphi / VCL     | Framework visual; VCL para todos os componentes de UI            |
+| FireDAC          | Acesso a dados: `TFDConnection`, `TFDQuery`, `TFDStoredProc`     |
+| SQL Server 2022  | Banco de dados; instância `localhost\SQLSERVER2022`              |
+| Windows 32-bit   | Plataforma de execução; sem DLLs externas além de VCL/FireDAC    |
+
+### 8.2 Estruturas de banco necessárias
+
+**Tabelas (inferidas das queries e SPs):**
+
+| Tabela       | Campos inferidos                                                   |
+|--------------|--------------------------------------------------------------------|
+| `TBCLIENTES` | `ID_CLI` (identity), `NOME_CLI` (varchar 50)                       |
+| `TBPRODUTOS` | `ID_PROD` (identity), `NOME_PROD` (varchar 50), `QTD_PROD` (int), `VL_PROD` (decimal/money) |
+| `TBVENDAS`   | `ID_Cod_Venda` (identity), `ID_CLI` (FK), `TOTAL` (?), `COD_VENDA` (int) |
+| Itens venda  | `NM_PROD` (varchar), `QTD_VENDA` (int), `COD_VENDA` (int)         |
+
+**Stored procedures (8 obrigatórias):**
+
+```
+dbo.st_InsereCli        dbo.st_AlteraCli        dbo.ST_APAGACLI
+dbo.st_InsereProd       dbo.st_AtualizaProd     dbo.stExcluiProd
+dbo.st_InsereItensVenda dbo.st_InsereVenda
+```
+
+---
+
+*Documento gerado com base na análise estática do código-fonte — VendaProduto (Delphi/FireDAC), Junho/2026.*
