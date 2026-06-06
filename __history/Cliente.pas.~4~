@@ -1,0 +1,32 @@
+unit Cliente;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TfrmCliente = class(TForm)
+    Label1: TLabel;
+    edtNome: TEdit;
+    btnSalvar: Tbutton;
+    btnExcluir: Tbutton;
+    btnAtualizar: Tbutton;
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCliente: TfrmCliente;
+
+implementation
+
+{$R *.dfm}
+
+uses dmDados;
+
+end.

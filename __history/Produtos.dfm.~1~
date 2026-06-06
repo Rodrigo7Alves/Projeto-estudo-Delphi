@@ -1,0 +1,115 @@
+object frmProdutos: TfrmProdutos
+  Left = 0
+  Top = 0
+  Caption = 'frmProdutos'
+  ClientHeight = 277
+  ClientWidth = 345
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object lblNomeProduto: TLabel
+    Left = 34
+    Top = 30
+    Width = 40
+    Height = 16
+    Caption = 'Nome:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblQuantidade: TLabel
+    Left = 196
+    Top = 64
+    Width = 28
+    Height = 16
+    Caption = 'Qtd:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblValor: TLabel
+    Left = 33
+    Top = 64
+    Width = 39
+    Height = 16
+    Caption = 'Valor:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object btnExcluir: TButton
+    Left = 230
+    Top = 232
+    Width = 91
+    Height = 25
+    Caption = '&Excluir'
+    TabOrder = 6
+  end
+  object btnAtualizar: TButton
+    Left = 129
+    Top = 232
+    Width = 95
+    Height = 25
+    Caption = '&Atualizar'
+    TabOrder = 5
+  end
+  object btnSalvar: TButton
+    Left = 24
+    Top = 232
+    Width = 99
+    Height = 25
+    Caption = '&Salvar'
+    TabOrder = 4
+  end
+  object edtNome: TEdit
+    Left = 80
+    Top = 25
+    Width = 241
+    Height = 21
+    TabOrder = 0
+  end
+  object edtQtd: TSpinEdit
+    Left = 230
+    Top = 54
+    Width = 91
+    Height = 26
+    MaxValue = 0
+    MinValue = 0
+    TabOrder = 2
+    Value = 0
+  end
+  object edtValor: TEdit
+    Left = 78
+    Top = 52
+    Width = 91
+    Height = 26
+    TabOrder = 1
+  end
+  object dbgProdutos: TDBGrid
+    Left = 24
+    Top = 94
+    Width = 297
+    Height = 123
+    TabOrder = 3
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+  end
+end

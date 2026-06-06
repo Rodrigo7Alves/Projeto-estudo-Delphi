@@ -1,0 +1,106 @@
+object dm: Tdm
+  OldCreateOrder = False
+  Height = 397
+  Width = 547
+  object conProjetoVenda: TFDConnection
+    Params.Strings = (
+      'Database=ProjetoVenda'
+      'User_Name=sa'
+      'Password=123456'
+      'Server=localhost\SQLSERVER2022'
+      'DriverID=MSSQL')
+    Connected = True
+    LoginPrompt = False
+    Left = 264
+    Top = 40
+  end
+  object stInsereCliente: TFDStoredProc
+    Connection = conProjetoVenda
+    StoredProcName = 'ProjetoVenda.dbo.st_InsereCli'
+    Left = 264
+    Top = 104
+    ParamData = <
+      item
+        Position = 1
+        Name = '@RETURN_VALUE'
+        DataType = ftInteger
+        ParamType = ptResult
+      end
+      item
+        Position = 2
+        Name = '@nome'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 50
+      end>
+  end
+  object qryClienets: TFDQuery
+    Active = True
+    Connection = conProjetoVenda
+    SQL.Strings = (
+      'SELECT * FROM TBCLIENTES')
+    Left = 264
+    Top = 176
+    object qryClienetsID_CLI: TFDAutoIncField
+      FieldName = 'ID_CLI'
+      Origin = 'ID_CLI'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object qryClienetsNOME_CLI: TStringField
+      FieldName = 'NOME_CLI'
+      Origin = 'NOME_CLI'
+      Size = 50
+    end
+  end
+  object dsClientes: TDataSource
+    DataSet = qryClienets
+    Left = 264
+    Top = 240
+  end
+  object stAtualizaCliente: TFDStoredProc
+    Connection = conProjetoVenda
+    StoredProcName = 'ProjetoVenda.dbo.st_AlteraCli'
+    Left = 88
+    Top = 200
+    ParamData = <
+      item
+        Position = 1
+        Name = '@RETURN_VALUE'
+        DataType = ftInteger
+        ParamType = ptResult
+      end
+      item
+        Position = 2
+        Name = '@id'
+        DataType = ftInteger
+        ParamType = ptInput
+      end
+      item
+        Position = 3
+        Name = '@nome'
+        DataType = ftString
+        ParamType = ptInput
+        Size = 50
+      end>
+  end
+  object stExcluiCliente: TFDStoredProc
+    Connection = conProjetoVenda
+    StoredProcName = 'ProjetoVenda.dbo.ST_APAGACLI'
+    Left = 88
+    Top = 304
+    ParamData = <
+      item
+        Position = 1
+        Name = '@RETURN_VALUE'
+        DataType = ftInteger
+        ParamType = ptResult
+      end
+      item
+        Position = 2
+        Name = '@ID'
+        DataType = ftInteger
+        ParamType = ptInput
+      end>
+  end
+end

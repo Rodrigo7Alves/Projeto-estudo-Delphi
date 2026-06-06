@@ -1,0 +1,51 @@
+unit dmDados;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.MSSQL,
+  FireDAC.Phys.MSSQLDef, FireDAC.VCLUI.Wait, Data.DB, FireDAC.Comp.Client,
+  FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
+  FireDAC.Comp.DataSet;
+
+type
+  Tdm = class(TDataModule)
+    conProjetoVenda: TFDConnection;
+    stInsereCliente: TFDStoredProc;
+    qryClienets: TFDQuery;
+    qryClienetsID_CLI: TFDAutoIncField;
+    qryClienetsNOME_CLI: TStringField;
+    dsClientes: TDataSource;
+    stAtualizaCliente: TFDStoredProc;
+    stExcluiCliente: TFDStoredProc;
+    qryProdutos: TFDQuery;
+    dsProdutos: TDataSource;
+    qryProdutosID_PROD: TFDAutoIncField;
+    qryProdutosNOME_PROD: TStringField;
+    qryProdutosQTD_PROD: TIntegerField;
+    qryProdutosVL_PROD: TCurrencyField;
+    stAtualizaProduto: TFDStoredProc;
+    stInsereProduto: TFDStoredProc;
+    stExcluiProduto: TFDStoredProc;
+    stInsereItensVenda: TFDStoredProc;
+    stInsereVenda: TFDStoredProc;
+    qryCodVenda: TFDQuery;
+    qryCodVendaUnnamed1: TIntegerField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  dm: Tdm;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+end.

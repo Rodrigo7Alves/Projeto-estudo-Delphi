@@ -1,0 +1,55 @@
+unit Vendas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.StdCtrls, Vcl.Samples.Spin,
+  Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls, Vcl.ComCtrls;
+
+type
+  TfrmVendas = class(TForm)
+    panCliente: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    edtNomeCli: TEdit;
+    dbCliente: TDBGrid;
+    panProd: TPanel;
+    edtFiltroProd: TEdit;
+    Label3: TLabel;
+    Label4: TLabel;
+    dbProdutos: TDBGrid;
+    panVenda: TPanel;
+    Label5: TLabel;
+    edtQtdProd: TSpinEdit;
+    btnIncluiItem: TButton;
+    btnRealizaVenda: TButton;
+    btnExcluiVenda: TButton;
+    lblCodVenda: TLabel;
+    lstLista: TListView;
+    Label7: TLabel;
+    lblTotalVenda: TLabel;
+    edtNomeClie: TEdit;
+    Label6: TLabel;
+    Label8: TLabel;
+    edtProd: TEdit;
+    Label9: TLabel;
+    edtValorProduto: TEdit;
+    Label10: TLabel;
+    edtTotalProduto: TEdit;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmVendas: TfrmVendas;
+
+implementation
+
+{$R *.dfm}
+
+uses dmDados;
+
+end.

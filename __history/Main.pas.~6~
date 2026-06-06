@@ -1,0 +1,43 @@
+unit Main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage, Vcl.ExtCtrls,
+  Vcl.Imaging.jpeg, Vcl.StdCtrls;
+
+type
+  TfrmMain = class(TForm)
+    Image1: TImage;
+    imgProdutos: TImage;
+    lblCadCliente: TLabel;
+    lblCadProdutos: TLabel;
+    procedure Image1Click(Sender: TObject);
+    procedure imgProdutosClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmMain: TfrmMain;
+
+implementation
+
+{$R *.dfm}
+
+uses Cliente, Produtos;
+
+procedure TfrmMain.Image1Click(Sender: TObject);
+begin
+  frmCliente.ShowModal;
+end;
+
+procedure TfrmMain.imgProdutosClick(Sender: TObject);
+begin
+  frmProdutos.ShowModal;
+end;
+
+end.

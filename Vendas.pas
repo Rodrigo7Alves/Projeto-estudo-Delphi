@@ -1,0 +1,220 @@
+unit Vendas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.StdCtrls, Vcl.Samples.Spin,
+  Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Imaging.pngimage,
+  Vcl.Imaging.jpeg;
+
+type
+  TfrmVendas = class(TForm)
+    panCliente: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    edtFiltroCli: TEdit;
+    dbCliente: TDBGrid;
+    panProd: TPanel;
+    edtFiltroProd: TEdit;
+    Label3: TLabel;
+    Label4: TLabel;
+    dbProdutos: TDBGrid;
+    panVenda: TPanel;
+    Label5: TLabel;
+    edtQtdProd: TSpinEdit;
+    btnIncluiItem: TButton;
+    btnRealizaVenda: TButton;
+    btnExcluiVenda: TButton;
+    lblCodVenda: TLabel;
+    lstLista: TListView;
+    Label7: TLabel;
+    lblTotalVenda: TLabel;
+    edtNomeClie: TEdit;
+    Label6: TLabel;
+    Label8: TLabel;
+    edtProd: TEdit;
+    Label9: TLabel;
+    edtValorProduto: TEdit;
+    Label10: TLabel;
+    edtTotalProduto: TEdit;
+    Image1: TImage;
+    procedure edtFiltroCliChange(Sender: TObject);
+    procedure edtFiltroProdChange(Sender: TObject);
+    procedure dbClienteCellClick(Column: TColumn);
+    procedure dbProdutosCellClick(Column: TColumn);
+    procedure edtQtdProdExit(Sender: TObject);
+    procedure btnIncluiItemClick(Sender: TObject);
+    procedure btnExcluiVendaClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnRealizaVendaClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmVendas: TfrmVendas;
+
+implementation
+
+{$R *.dfm}
+
+uses dmDados;
+
+procedure TfrmVendas.btnExcluiVendaClick(Sender: TObject);
+Var
+ i: integer;
+ tot: Real;
+begin
+  if lstLista.ItemFocused <> nil then
+  begin
+    lstLista.DeleteSelected;
+  end;
+
+  tot := 0;
+  for I := 0 to lstLista.Items.Count do
+  begin
+    tot := tot + strtoint(lstLista.Items[i].SubItems[2]);
+    lblTotalVenda.Caption := 'R$' + floattostr(tot)
+  end;
+
+end;
+
+procedure TfrmVendas.btnIncluiItemClick(Sender: TObject);
+var
+  lista : TlistItem;
+  i, qtd: integer;
+  tot: Real;
+
+begin
+
+  qtd := StrToInt(edtqtdprod.Text);
+
+  if qtd > 0 then
+
+  begin
+
+  lista :=lstlista.Items.Add;
+  lista.Caption :=edtProd.text;
+  lista.SubItems.Add(edtValorProduto.Text);
+  lista.SubItems.Add(edtQtdProd.Text);
+  lista.SubItems.Add(edtTotalProduto.Text);
+
+  tot := 0;
+  for I := 0 to lstLista.Items.Count do
+    begin
+    tot := tot + StrToFloat(lstLista.Items[i].SubItems[2]);
+    lblTotalVenda.Caption := 'R$' + floattostr(tot)
+    end;
+  end
+  else
+  begin
+  showMessage('Por Favor insira uma quantidade');
+  edtQtdProd.Focused;
+  end;
+
+end;
+procedure TfrmVendas.btnRealizaVendaClick(Sender: TObject);
+var
+  retorno, i: integer;
+  erMsg: String;
+begin
+
+  for i := 0 to lstLista.Items.Count -1 do
+    begin
+    with dm.stInsereItensVenda do
+    begin
+      close;
+      paramByName('@nm_Prod').Value := lstLista.Items[i].Caption;
+      paramByName('@qtdVenda').Value := lstLista.Items[i].SubItems[1];
+      paramByName('@CodVenda').Value := lblCodVenda.Caption;
+      ExecProc;
+
+      retorno := paramByName('@return').Value;
+      erMsg := paramByName('@erMsg').Value;
+
+      if (retorno = 2) or (retorno = 3) then
+      begin
+        showMessage(erMsg);
+      end;
+    end;
+  end;
+
+  if (retorno = 1) or (retorno = 3) then
+  begin
+    with dm.stInsereVenda do
+    begin
+      Close;
+      paramByName('@idCli').Value    := dbCliente.Fields[0].Value;
+      paramByName('@total').Value    := lblTotalVenda.Caption;
+      paramByName('@codVenda').Value := lblCodVenda.Caption;
+      execProc;
+    end;
+  end;
+
+  lblCodVenda.Caption := intToStr(dm.qryCodVendaUnnamed1.Value + 1);
+
+
+end;
+
+procedure TfrmVendas.dbClienteCellClick(Column: TColumn);
+begin
+  edtNomeClie.Text := dbCliente.Fields[1].Value;
+end;
+
+procedure TfrmVendas.dbProdutosCellClick(Column: TColumn);
+begin
+  edtProd.Text := dbProdutos.Fields[1].Value;
+  edtValorProduto.Text := dbProdutos.Fields[3].Value;
+end;
+
+procedure TfrmVendas.edtFiltroCliChange(Sender: TObject);
+begin
+  with dm.qryClienets do
+  begin
+    Filtered:= false;
+    Filter := 'NOME_CLI like' + QuotedStr('%'+ edtFiltroCli.Text + '%');
+    Filtered := True;
+
+  end;
+end;
+
+procedure TfrmVendas.edtFiltroProdChange(Sender: TObject);
+begin
+  with dm.qryProdutos do
+  begin
+    Filtered := false;
+    Filter := 'NOME_PROD like' + QuotedStr ('%'+ edtFiltroProd.Text + '%');
+    Filtered := true;
+  end;
+end;
+
+procedure TfrmVendas.edtQtdProdExit(Sender: TObject);
+var
+  qtd : integer;
+  total : real;
+
+begin
+  qtd := strtoInt(edtQtdProd.text);
+  total := qtd * StrtoFloat(edtValorProduto.text);
+
+  edtTotalProduto.text := FloatToStr(total);
+
+
+end;
+
+procedure TfrmVendas.FormShow(Sender: TObject);
+begin
+  with dm.qryCodVenda do
+  begin
+    close;
+    open();
+
+    lblCodVenda.Caption := intToStr(dm.qryCodVendaUnnamed1.Value + 1);
+  end;
+
+end;
+
+end.

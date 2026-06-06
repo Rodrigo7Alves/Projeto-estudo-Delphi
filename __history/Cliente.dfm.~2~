@@ -1,0 +1,54 @@
+object frmCliente: TfrmCliente
+  Left = 0
+  Top = 0
+  Caption = 'Clientes'
+  ClientHeight = 120
+  ClientWidth = 388
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label1: TLabel
+    Left = 48
+    Top = 32
+    Width = 31
+    Height = 13
+    Caption = 'Nome:'
+  end
+  object edtNome: TEdit
+    Left = 85
+    Top = 29
+    Width = 260
+    Height = 21
+    TabOrder = 0
+  end
+  object btnSalvar: TButton
+    Left = 48
+    Top = 72
+    Width = 99
+    Height = 25
+    Caption = '&Salvar'
+    TabOrder = 1
+  end
+  object btnAtualizar: TButton
+    Left = 153
+    Top = 72
+    Width = 95
+    Height = 25
+    Caption = '&Atualizar'
+    TabOrder = 2
+  end
+  object btnExcluir: TButton
+    Left = 254
+    Top = 72
+    Width = 91
+    Height = 25
+    Caption = '&Excluir'
+    TabOrder = 3
+  end
+end

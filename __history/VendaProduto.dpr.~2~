@@ -1,0 +1,16 @@
+program VendaProduto;
+
+uses
+  Vcl.Forms,
+  Main in 'Main.pas' {Form2},
+  dmDados in 'dmDados.pas' {DataModule1: TDataModule};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm2, Form2);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.Run;
+end.

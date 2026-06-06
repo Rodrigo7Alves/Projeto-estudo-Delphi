@@ -1,0 +1,176 @@
+object frmProdutos: TfrmProdutos
+  Left = 0
+  Top = 0
+  BorderStyle = bsDialog
+  Caption = 'Produtos'
+  ClientHeight = 286
+  ClientWidth = 371
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poDesktopCenter
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object lblNomeProduto: TLabel
+    Left = 34
+    Top = 30
+    Width = 40
+    Height = 16
+    Caption = 'Nome:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblQuantidade: TLabel
+    Left = 196
+    Top = 53
+    Width = 28
+    Height = 16
+    Caption = 'Qtd:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblValor: TLabel
+    Left = 35
+    Top = 53
+    Width = 39
+    Height = 16
+    Caption = 'Valor:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object btnExcluir: TButton
+    Left = 246
+    Top = 232
+    Width = 91
+    Height = 25
+    Caption = '&Excluir'
+    TabOrder = 6
+    OnClick = btnExcluirClick
+  end
+  object btnAtualizar: TButton
+    Left = 136
+    Top = 232
+    Width = 104
+    Height = 25
+    Caption = '&Atualizar'
+    TabOrder = 5
+    OnClick = btnAtualizarClick
+  end
+  object btnSalvar: TButton
+    Left = 24
+    Top = 232
+    Width = 106
+    Height = 25
+    Caption = '&Salvar'
+    TabOrder = 4
+    OnClick = btnSalvarClick
+  end
+  object edtNome: TEdit
+    Left = 80
+    Top = 25
+    Width = 257
+    Height = 21
+    CharCase = ecUpperCase
+    TabOrder = 0
+  end
+  object edtQtd: TSpinEdit
+    Left = 230
+    Top = 52
+    Width = 107
+    Height = 22
+    MaxValue = 100
+    MinValue = 0
+    TabOrder = 2
+    Value = 0
+  end
+  object edtValor: TEdit
+    Left = 80
+    Top = 52
+    Width = 91
+    Height = 21
+    TabOrder = 1
+  end
+  object dbProdutos: TDBGrid
+    Left = 24
+    Top = 94
+    Width = 313
+    Height = 123
+    DataSource = dm.dsProdutos
+    TabOrder = 3
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -11
+    TitleFont.Name = 'Tahoma'
+    TitleFont.Style = []
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'ID_PROD'
+        Title.Alignment = taCenter
+        Title.Caption = 'C'#243'digo'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -12
+        Title.Font.Name = 'Tahoma'
+        Title.Font.Style = [fsBold]
+        Width = 48
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'NOME_PROD'
+        Title.Alignment = taCenter
+        Title.Caption = 'Nome'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -12
+        Title.Font.Name = 'Tahoma'
+        Title.Font.Style = [fsBold]
+        Width = 146
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'QTD_PROD'
+        Title.Alignment = taCenter
+        Title.Caption = 'Qtd'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -12
+        Title.Font.Name = 'Tahoma'
+        Title.Font.Style = [fsBold]
+        Width = 32
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'VL_PROD'
+        Title.Alignment = taCenter
+        Title.Caption = 'Valor'
+        Title.Font.Charset = DEFAULT_CHARSET
+        Title.Font.Color = clWindowText
+        Title.Font.Height = -11
+        Title.Font.Name = 'Tahoma'
+        Title.Font.Style = [fsBold]
+        Width = 54
+        Visible = True
+      end>
+  end
+end
